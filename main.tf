@@ -8,7 +8,7 @@ terraform {
 }
 
 provider "digitalocean" {
-  # Configuration options
+# Configuration options
   token = var.do_token
 }
 
@@ -28,9 +28,8 @@ resource "digitalocean_ssh_key" "ubuntu_ssh_admin" {
   public_key = file(var.admin_ssh_key_path)
 }
 
-# Get SSH key for rebrain access
-data "digitalocean_ssh_key" "ubuntu_ssh_rebrain" {
-  name = "REBRAIN.SSH.PUB.KEY"
+data "external" "get_sshkey" {
+  program = ["bash", "./get_ssh_key.sh", var.do_token]
 }
 
 # Create a new vps Droplet in the fra1 region with tags and ssh keys
@@ -40,9 +39,13 @@ resource "digitalocean_droplet" "vps" {
   region = "fra1"
   size   = "s-1vcpu-1gb"
   tags   = [digitalocean_tag.task_name.id, digitalocean_tag.user_email.id]
-  ssh_keys = [digitalocean_ssh_key.ubuntu_ssh_admin.id, data.digitalocean_ssh_key.ubuntu_ssh_rebrain.id]
+  ssh_keys = [digitalocean_ssh_key.ubuntu_ssh_admin.id,data.external.get_sshkey.result.id]
 }
 
 output "droplet_ip_address" {
   value = digitalocean_droplet.vps.ipv4_address
+}
+
+output "ssh_key_rebrain" {
+  value = data.external.get_sshkey.result
 }
