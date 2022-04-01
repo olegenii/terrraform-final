@@ -30,14 +30,26 @@ resource "digitalocean_tag" "user_email" {
 # }
 
 # Get SSH key for rebrain access
-data "digitalocean_ssh_key" "ubuntu_ssh_rebrain" {
-  name = "REBRAIN.SSH.PUB.KEY"
-}
+# data "digitalocean_ssh_key" "ubuntu_ssh_rebrain" {
+#   name = "REBRAIN.SSH.PUB.KEY"
+# }
 
 # Get SSH key for admin access
 data "digitalocean_ssh_key" "ubuntu_ssh_admin" {
   name = "Ubuntu SSH key"
 }
+
+data "external" "get_sshkey" {
+  program = ["bash", "./get_ssh_key.sh" var.do_token]
+}
+
+# data "http" "this" {
+#   url             = "https://api.digitalocean.com/v2/account/keys"
+#   request_headers = {
+#     Accept        = "application/json",
+#     Authorization = format("Bearer %s",var.do_token)
+#   }
+# }
 
 # Create a new vps Droplet in the fra1 region with tags and ssh keys
 resource "digitalocean_droplet" "vps" {
@@ -48,5 +60,13 @@ resource "digitalocean_droplet" "vps" {
   #disk = 25
   tags   = [digitalocean_tag.task_name.id, digitalocean_tag.user_email.id]
   #ssh_keys = [digitalocean_ssh_key.ubuntu_ssh_admin.fingerprint, data.digitalocean_ssh_key.ubuntu_ssh_rebrain.id]
-  ssh_keys = [data.digitalocean_ssh_key.ubuntu_ssh_admin.id, data.digitalocean_ssh_key.ubuntu_ssh_rebrain.id]
+  ssh_keys = [data.digitalocean_ssh_key.ubuntu_ssh_admin.id,data.external.get_sshkey.result.id]
 }
+
+output "ssh_key_rebrain" {
+  value = data.external.get_sshkey.result
+}
+
+# output "todo" {
+#   value = data.http.this.body
+# }
