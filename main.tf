@@ -28,7 +28,7 @@ data "digitalocean_ssh_key" "ubuntu_ssh_admin" {
 }
 
 data "external" "get_sshkey" {
-  program = ["bash", "./get_ssh_key.sh" var.do_token]
+  program = ["bash", "./get_ssh_key.sh", var.do_token]
 }
 
 # Create a new vps Droplet in the fra1 region with tags and ssh keys
