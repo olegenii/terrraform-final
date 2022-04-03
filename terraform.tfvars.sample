@@ -1,0 +1,12 @@
+# Add a DO access token
+do_token = "_your_token_"
+
+# Add a task_name tag
+tag_task_name = "task_name:_your_task_name"
+
+# Add a user_email tag
+tag_admin_email = "user_email:_your_email_"
+
+# Add a new SSH key for admin access from file
+admin_ssh_key_name = "_your_ssh_key_name"
+admin_ssh_key_path = "/path/to/ssh-key"

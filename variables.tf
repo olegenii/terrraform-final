@@ -1,11 +1,14 @@
 variable "do_token" {
   description = "Access token to DO"
   type        = string
-  #default     = "https://gitlab.rebrainme.com/api/v4"
 }
 
-# variable "do_droplet_ssh_key" {
-#   description = "SSH key to Droplet"
-#   type        = string
-#   #default     = "https://gitlab.rebrainme.com/api/v4"
-# }
+# Add a task_name tag
+variable "tag_task_name" {}
+
+# Add a user_email tag
+variable "tag_admin_email" {}
+
+# Add a new SSH key for admin access from file
+variable "admin_ssh_key_name" {}
+variable "admin_ssh_key_path" {}
