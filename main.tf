@@ -4,12 +4,40 @@ terraform {
       source = "digitalocean/digitalocean"
       version = "2.19.0"
     }
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.0"
+    }
   }
 }
 
 provider "digitalocean" {
   # Configuration options
   token = var.do_token
+}
+
+# Configure the AWS Provider
+provider "aws" {
+  region = "us-east-1"
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+}
+
+#Create local var with droplet IP
+locals {
+  ip = digitalocean_droplet.vps.ipv4_address
+}
+
+data "aws_route53_zone" "selected" {
+  name = var.aws_route53_zone
+}
+
+resource "aws_route53_record" "www" {
+  zone_id = data.aws_route53_zone.selected.zone_id
+  name    = var.aws_route53_record_name
+  type    = "A"
+  ttl     = "300"
+  records = [local.ip]
 }
 
 # Create a task_name tag

@@ -10,3 +10,11 @@ tag_admin_email = "user_email:_your_email_"
 # Add a new SSH key for admin access from file
 admin_ssh_key_name = "_your_ssh_key_name"
 admin_ssh_key_path = "/path/to/ssh-key"
+
+# Add an AWS access tokens
+aws_access_key = "your_access_key"
+aws_secret_key = "your_secret_key"
+
+# Add an AWS Route53 Zone and Record name
+aws_route53_zone = "your.zo.ne"
+aws_route53_record_name = "your_record.your.zone"
