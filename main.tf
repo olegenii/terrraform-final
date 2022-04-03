@@ -32,6 +32,10 @@ data "external" "get_sshkey" {
   program = ["bash", "./get_ssh_key.sh", var.do_token]
 }
 
+data "external" "get_sshkey" {
+  program = ["bash", "./get_ssh_key.sh", var.do_token]
+}
+
 # Create a new vps Droplet in the fra1 region with tags and ssh keys
 resource "digitalocean_droplet" "vps" {
   image  = "ubuntu-20-04-x64"
@@ -44,6 +48,10 @@ resource "digitalocean_droplet" "vps" {
 
 output "droplet_ip_address" {
   value = digitalocean_droplet.vps.ipv4_address
+}
+
+output "ssh_key_rebrain" {
+  value = data.external.get_sshkey.result
 }
 
 output "ssh_key_rebrain" {
