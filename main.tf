@@ -14,21 +14,17 @@ provider "digitalocean" {
 
 # Create a task_name tag
 resource "digitalocean_tag" "task_name" {
-  #name = "task_name:devops-terraform-02"
   name = var.tag_task_name
 }
 
 # Create a user_email tag
 resource "digitalocean_tag" "user_email" {
-  #name = "user_email:oleg_satalkin_at_gmail_com"
   name = var.tag_admin_email
 }
 
 # Create a new SSH key for admin access from file
 resource "digitalocean_ssh_key" "ubuntu_ssh_admin" {
-  #name       = "Ubuntu SSH key"
   name = var.admin_ssh_key_name
-  #public_key = var.do_droplet_ssh_key
   public_key = file(var.admin_ssh_key_path)
 }
 
@@ -36,11 +32,6 @@ resource "digitalocean_ssh_key" "ubuntu_ssh_admin" {
 data "digitalocean_ssh_key" "ubuntu_ssh_rebrain" {
   name = "REBRAIN.SSH.PUB.KEY"
 }
-
-# Get SSH key for admin access
-# data "digitalocean_ssh_key" "ubuntu_ssh_admin" {
-#   name = "Ubuntu SSH key"
-# }
 
 # Create a new vps Droplet in the fra1 region with tags and ssh keys
 resource "digitalocean_droplet" "vps" {
