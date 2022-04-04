@@ -23,21 +23,17 @@ provider "aws" {
   secret_key = var.aws_secret_key
 }
 
-#Create local var with droplet IP
-locals {
-  ip = digitalocean_droplet.vps.ipv4_address
-}
-
 data "aws_route53_zone" "selected" {
   name = var.aws_route53_zone
 }
 
 resource "aws_route53_record" "www" {
+  count = var.do_vps_count
   zone_id = data.aws_route53_zone.selected.zone_id
-  name    = var.aws_route53_record_name
+  name    = element(digitalocean_droplet.vps.*.name, count.index)
   type    = "A"
   ttl     = "300"
-  records = [local.ip]
+  records = [element(digitalocean_droplet.vps.*.ipv4_address, count.index)]
 }
 
 # Create a task_name tag
@@ -63,14 +59,18 @@ data "digitalocean_ssh_key" "ubuntu_ssh_rebrain" {
 
 # Create a new vps Droplet in the fra1 region with tags and ssh keys
 resource "digitalocean_droplet" "vps" {
+  count = var.do_vps_count
   image  = "ubuntu-20-04-x64"
-  name   = "rebrain-devops-tf2"
+  name   = format("%s-%s", var.aws_route53_record_name, count.index + 1)
   region = "fra1"
   size   = "s-1vcpu-1gb"
   tags   = [digitalocean_tag.task_name.id, digitalocean_tag.user_email.id]
   ssh_keys = [digitalocean_ssh_key.ubuntu_ssh_admin.id, data.digitalocean_ssh_key.ubuntu_ssh_rebrain.id]
 }
 
-output "droplet_ip_address" {
-  value = digitalocean_droplet.vps.ipv4_address
+output "vps" {
+  value = {
+    hostname         = digitalocean_droplet.vps.*.name
+    ip  = digitalocean_droplet.vps.*.ipv4_address
+  }  
 }

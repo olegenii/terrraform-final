@@ -18,3 +18,6 @@ variable "aws_secret_key" {}
 # Add an AWS Route53 Zone and Record name
 variable "aws_route53_zone" {}
 variable "aws_route53_record_name" {}
+
+# Add DO droplet count
+variable "do_vps_count" {}
