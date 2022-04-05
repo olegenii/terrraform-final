@@ -76,7 +76,7 @@ resource "digitalocean_droplet" "vps" {
   
   provisioner "remote-exec" {
     inline = [
-      "useradd ${var.vps_user_name} -p ${var.vps_user_password}",
+      "echo ${var.vps_user_name}:${var.vps_user_password} | chpasswd",
     ]
   }
 }
