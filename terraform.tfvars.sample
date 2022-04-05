@@ -11,6 +11,10 @@ tag_admin_email = "user_email:_your_email_"
 admin_ssh_key_name = "_your_ssh_key_name"
 admin_ssh_key_path = "/path/to/ssh-key"
 
+admin_ssh_privkey_path = "/path/to/ssh-privkey"
+vps_user_password = "your_vps_pass"
+vps_user_name = "your_vps_username"
+
 # Add an AWS access tokens
 aws_access_key = "your_access_key"
 aws_secret_key = "your_secret_key"

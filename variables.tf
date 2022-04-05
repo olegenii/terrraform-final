@@ -11,6 +11,10 @@ variable "tag_admin_email" {}
 variable "admin_ssh_key_name" {}
 variable "admin_ssh_key_path" {}
 
+variable "admin_ssh_privkey_path" {}
+variable "vps_user_password" {}
+variable "vps_user_name" {}
+
 # Add an AWS access tokens
 variable "aws_access_key" {}
 variable "aws_secret_key" {}

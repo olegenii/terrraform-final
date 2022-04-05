@@ -66,4 +66,17 @@ resource "digitalocean_droplet" "vps" {
   size   = "s-1vcpu-1gb"
   tags   = [digitalocean_tag.task_name.id, digitalocean_tag.user_email.id]
   ssh_keys = [digitalocean_ssh_key.ubuntu_ssh_admin.id, data.digitalocean_ssh_key.ubuntu_ssh_rebrain.id]
+
+  connection {
+    host        = element(digitalocean_droplet.vps.*.ipv4_address, count.index)
+    type        = "ssh"
+    user        = "root"
+    private_key = file(var.admin_ssh_privkey_path)
+  }
+  
+  provisioner "remote-exec" {
+    inline = [
+      "useradd ${var.vps_user_name} -p ${var.vps_user_password}",
+    ]
+  }
 }
