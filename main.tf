@@ -67,10 +67,3 @@ resource "digitalocean_droplet" "vps" {
   tags   = [digitalocean_tag.task_name.id, digitalocean_tag.user_email.id]
   ssh_keys = [digitalocean_ssh_key.ubuntu_ssh_admin.id, data.digitalocean_ssh_key.ubuntu_ssh_rebrain.id]
 }
-
-output "vps" {
-  value = {
-    hostname         = digitalocean_droplet.vps.*.name
-    ip  = digitalocean_droplet.vps.*.ipv4_address
-  }  
-}
