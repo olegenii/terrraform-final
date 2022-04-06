@@ -22,7 +22,7 @@ provider "digitalocean" {
 
 # Configure the AWS Provider
 provider "aws" {
-  region = "us-east-1"
+  region = "eu-central-1"
   access_key = var.aws_access_key
   secret_key = var.aws_secret_key
 }
@@ -34,10 +34,12 @@ data "aws_route53_zone" "selected" {
 resource "aws_route53_record" "www" {
   count = var.do_vps_count
   zone_id = data.aws_route53_zone.selected.zone_id
-  name    = element(digitalocean_droplet.vps.*.name, count.index)
+  name    = digitalocean_droplet.vps[count.index].name
+  #name    = element(digitalocean_droplet.vps.*.name, count.index)
+  #name    = "${format("%s-%s", var.aws_route53_record_name, count.index + 1)}.${var.aws_route53_zone}"
   type    = "A"
   ttl     = "300"
-  records = [element(digitalocean_droplet.vps.*.ipv4_address, count.index)]
+  records = [digitalocean_droplet.vps[count.index].ipv4_address]
 }
 
 # Create a task_name tag
@@ -63,31 +65,31 @@ data "digitalocean_ssh_key" "ubuntu_ssh_rebrain" {
 
 # Get random passwords
 resource "random_string" "random" {
-  #count = var.do_vps_count
+  count = var.do_vps_count
   length = 8
   special = true
 }
 
 # Create a new vps Droplet in the fra1 region with tags and ssh keys
 resource "digitalocean_droplet" "vps" {
-  count = var.do_vps_count
+  count  = var.do_vps_count
   image  = "ubuntu-20-04-x64"
   name   = format("%s-%s", var.aws_route53_record_name, count.index + 1)
   region = "fra1"
   size   = "s-1vcpu-1gb"
   tags   = [digitalocean_tag.task_name.id, digitalocean_tag.user_email.id]
   ssh_keys = [digitalocean_ssh_key.ubuntu_ssh_admin.id, data.digitalocean_ssh_key.ubuntu_ssh_rebrain.id]
-
+  
   connection {
-    host        = element(digitalocean_droplet.vps.*.ipv4_address, count.index)
+  #  host        = "${element(digitalocean_droplet.vps.*.ipv4_address, count.index)}"
+  #  host        = "${digitalocean_droplet.vps[count.index].ipv4_address}"
+    host        = "${self.ipv4_address}"
     type        = "ssh"
     user        = "root"
     private_key = file(var.admin_ssh_privkey_path)
   }
   
   provisioner "remote-exec" {
-    inline = [
-      "echo ${var.vps_user_name}:${random_string.random[count.index].result}| chpasswd",
-    ]
+    inline = ["echo ${var.vps_user_name}:${random_string.random[count.index].result}| chpasswd"]
   }
 }
