@@ -31,12 +31,10 @@ data "aws_route53_zone" "selected" {
   name = var.aws_route53_zone
 }
 
-resource "aws_route53_record" "www" {
+ resource "aws_route53_record" "www" {
   count = var.do_vps_count
   zone_id = data.aws_route53_zone.selected.zone_id
   name    = digitalocean_droplet.vps[count.index].name
-  #name    = element(digitalocean_droplet.vps.*.name, count.index)
-  #name    = "${format("%s-%s", var.aws_route53_record_name, count.index + 1)}.${var.aws_route53_zone}"
   type    = "A"
   ttl     = "300"
   records = [digitalocean_droplet.vps[count.index].ipv4_address]
@@ -81,8 +79,6 @@ resource "digitalocean_droplet" "vps" {
   ssh_keys = [digitalocean_ssh_key.ubuntu_ssh_admin.id, data.digitalocean_ssh_key.ubuntu_ssh_rebrain.id]
   
   connection {
-  #  host        = "${element(digitalocean_droplet.vps.*.ipv4_address, count.index)}"
-  #  host        = "${digitalocean_droplet.vps[count.index].ipv4_address}"
     host        = "${self.ipv4_address}"
     type        = "ssh"
     user        = "root"
@@ -90,6 +86,6 @@ resource "digitalocean_droplet" "vps" {
   }
   
   provisioner "remote-exec" {
-    inline = ["echo ${var.vps_user_name}:${random_string.random[count.index].result}| chpasswd"]
+    inline = ["echo ${var.vps_user_name}:${random_string.random[count.index].result} | chpasswd"]
   }
 }
