@@ -8,6 +8,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 3.0"
     }
+    random = {
+      source = "hashicorp/random"
+      version = "3.1.2"
+    }
   }
 }
 
@@ -57,6 +61,13 @@ data "digitalocean_ssh_key" "ubuntu_ssh_rebrain" {
   name = "REBRAIN.SSH.PUB.KEY"
 }
 
+# Get random passwords
+resource "random_string" "random" {
+  #count = var.do_vps_count
+  length = 8
+  special = true
+}
+
 # Create a new vps Droplet in the fra1 region with tags and ssh keys
 resource "digitalocean_droplet" "vps" {
   count = var.do_vps_count
@@ -76,7 +87,7 @@ resource "digitalocean_droplet" "vps" {
   
   provisioner "remote-exec" {
     inline = [
-      "echo ${var.vps_user_name}:${var.vps_user_password} | chpasswd",
+      "echo ${var.vps_user_name}:${random_string.random[count.index].result}| chpasswd",
     ]
   }
 }
