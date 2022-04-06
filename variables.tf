@@ -22,5 +22,7 @@ variable "aws_secret_key" {}
 variable "aws_route53_zone" {}
 variable "aws_route53_record_name" {}
 
-# Add DO droplet count
-variable "do_vps_count" {}
+# Add file and template names
+variable "file_out" {}
+variable "file_in" {}
+variable "devs" {}

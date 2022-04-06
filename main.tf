@@ -31,8 +31,8 @@ data "aws_route53_zone" "selected" {
   name = var.aws_route53_zone
 }
 
- resource "aws_route53_record" "www" {
-  count = var.do_vps_count
+resource "aws_route53_record" "www" {
+  count = local.num
   zone_id = data.aws_route53_zone.selected.zone_id
   name    = digitalocean_droplet.vps[count.index].name
   type    = "A"
@@ -63,21 +63,21 @@ data "digitalocean_ssh_key" "ubuntu_ssh_rebrain" {
 
 # Get random passwords
 resource "random_string" "random" {
-  count = var.do_vps_count
+  count = local.num
   length = 8
   special = true
 }
 
 # Create a new vps Droplet in the fra1 region with tags and ssh keys
 resource "digitalocean_droplet" "vps" {
-  count  = var.do_vps_count
+  count = local.num
   image  = "ubuntu-20-04-x64"
-  name   = format("%s-%s", var.aws_route53_record_name, count.index + 1)
+  name = "${split("-", var.devs[count.index])[1]}-${split("-", var.devs[count.index])[0]}"
   region = "fra1"
   size   = "s-1vcpu-1gb"
   tags   = [digitalocean_tag.task_name.id, digitalocean_tag.user_email.id]
   ssh_keys = [digitalocean_ssh_key.ubuntu_ssh_admin.id, data.digitalocean_ssh_key.ubuntu_ssh_rebrain.id]
-  
+
   connection {
     host        = "${self.ipv4_address}"
     type        = "ssh"
@@ -88,4 +88,14 @@ resource "digitalocean_droplet" "vps" {
   provisioner "remote-exec" {
     inline = ["echo ${var.vps_user_name}:${random_string.random[count.index].result} | chpasswd"]
   }
+}
+
+# Create an ouput file using template
+resource "local_file" "vps" {
+  filename = "${path.module}/${var.file_out}"
+  content  = templatefile("${path.module}/${var.file_in}", {domain = var.aws_route53_zone, vps_list = digitalocean_droplet.vps, random = random_string.random})
+}
+
+locals {
+  num = length(var.devs)
 }

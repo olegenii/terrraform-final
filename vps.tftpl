@@ -1,0 +1,3 @@
+%{ for i, vps in vps_list ~}
+${i+1}: ${vps.name}.${domain} ${vps.ipv4_address} ${random[i].result}
+%{ endfor ~}
